@@ -131,8 +131,8 @@
         <!-- Canvas Screen -->
         <div class="glass-panel rounded-2xl p-2.5 relative overflow-hidden flex flex-col">
             <div class="absolute top-3 left-3 z-10 flex items-center gap-2">
-                <span id="statusIndicator" class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span id="statusText" class="font-tech text-[10px] text-cyan-400 tracking-wider">REALTIME SPECTRUM</span>
+                <span id="statusIndicator" class="inline-block w-2 h-2 rounded-full bg-slate-500"></span>
+                <span id="statusText" class="font-tech text-[10px] text-slate-400 tracking-wider">STANDBY</span>
             </div>
             
             <!-- Extra Controls for Freeze, Compare & Graph Mode -->
@@ -217,7 +217,7 @@
                 <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto" id="userPresetsContainer"></div>
             </div>
 
-            <!-- 32 Sliders Scrollable Container (Optimized for Touch) -->
+            <!-- 32 Sliders Scrollable Container -->
             <div class="w-full overflow-x-auto pb-3 pt-2">
                 <div id="eqSlidersContainer" class="flex items-end justify-between gap-3 min-w-[950px] px-2"></div>
             </div>
@@ -453,65 +453,98 @@
             });
         }
 
-        async function initAudio() {
-            if (isRunning) return;
-            try {
-                // รองรับ iOS AudioContext
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
-                
-                // สำหรับ iOS ต้อง resume context หากอยู่ในสถานะ suspended
-                if (audioCtx.state === 'suspended') {
-                    await audioCtx.resume();
-                }
-
-                micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
-                sourceNode = audioCtx.createMediaStreamSource(micStream);
-                
-                micGainNode = audioCtx.createGain();
-                micGainNode.gain.value = parseFloat(micGainSlider.value);
-
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 4096;
-                analyser.smoothingTimeConstant = parseFloat(speedSlider.value);
-
-                gainNode = audioCtx.createGain();
-                gainNode.gain.value = speakerActive ? 1.0 : 0.0;
-
-                filterNodesGroup = [];
-                let lastNode = micGainNode;
-                
-                frequencies.forEach(freq => {
-                    const f1 = audioCtx.createBiquadFilter();
-                    const f2 = audioCtx.createBiquadFilter();
+        async function toggleAudioEngine() {
+            if (!isRunning) {
+                // เปิดการทำงาน
+                try {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
                     
-                    [f1, f2].forEach(f => {
-                        f.type = 'peaking';
-                        f.frequency.value = freq;
-                        f.Q.value = 5.0; 
-                        f.gain.value = 0.0;
+                    if (audioCtx.state === 'suspended') {
+                        await audioCtx.resume();
+                    }
+
+                    micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+                    sourceNode = audioCtx.createMediaStreamSource(micStream);
+                    
+                    micGainNode = audioCtx.createGain();
+                    micGainNode.gain.value = parseFloat(micGainSlider.value);
+
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 4096;
+                    analyser.smoothingTimeConstant = parseFloat(speedSlider.value);
+
+                    gainNode = audioCtx.createGain();
+                    gainNode.gain.value = speakerActive ? 1.0 : 0.0;
+
+                    filterNodesGroup = [];
+                    let lastNode = micGainNode;
+                    
+                    frequencies.forEach(freq => {
+                        const f1 = audioCtx.createBiquadFilter();
+                        const f2 = audioCtx.createBiquadFilter();
+                        
+                        [f1, f2].forEach(f => {
+                            f.type = 'peaking';
+                            f.frequency.value = freq;
+                            f.Q.value = 5.0; 
+                            f.gain.value = 0.0;
+                        });
+                        
+                        lastNode.connect(f1);
+                        f1.connect(f2);
+                        lastNode = f2;
+                        
+                        filterNodesGroup.push([f1, f2]);
                     });
+
+                    sourceNode.connect(micGainNode);
+                    lastNode.connect(analyser);
+                    analyser.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    isRunning = true;
+                    startBtn.textContent = 'ระบบทำงานแล้ว';
+                    startBtn.className = 'font-tech px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-1.5';
                     
-                    lastNode.connect(f1);
-                    f1.connect(f2);
-                    lastNode = f2;
-                    
-                    filterNodesGroup.push([f1, f2]);
-                });
+                    statusIndicator.className = 'inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse';
+                    statusText.className = 'font-tech text-[10px] text-cyan-400 tracking-wider';
+                    statusText.textContent = 'REALTIME SPECTRUM';
 
-                sourceNode.connect(micGainNode);
-                lastNode.connect(analyser);
-                analyser.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
+                    visualize();
+                } catch (e) {
+                    alert('ไม่สามารถเข้าถึงไมโครโฟนได้ กรุณาอนุญาตสิทธิ์การใช้งานไมค์');
+                    console.error(e);
+                }
+            } else {
+                // ปิดการทำงาน (Return to initial standby state)
+                if (micStream) {
+                    micStream.getTracks().forEach(track => track.stop());
+                }
+                if (audioCtx && audioCtx.state !== 'closed') {
+                    audioCtx.close();
+                }
+                
+                isRunning = false;
+                audioCtx = null;
+                micStream = null;
+                sourceNode = null;
+                analyser = null;
 
-                isRunning = true;
-                startBtn.textContent = 'ระบบทำงานแล้ว';
-                startBtn.className = 'font-tech px-3 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-xs shadow-lg shadow-emerald-600/30';
+                startBtn.textContent = 'เปิดไมโครโฟน';
+                startBtn.className = 'font-tech px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5';
+                
+                statusIndicator.className = 'inline-block w-2 h-2 rounded-full bg-slate-500';
+                statusText.className = 'font-tech text-[10px] text-slate-400 tracking-wider';
+                statusText.textContent = 'STANDBY';
+                
+                peakFreqVal.textContent = '0 Hz';
+                dbLevelVal.textContent = '-∞ dB';
 
-                visualize();
-            } catch (e) {
-                alert('ไม่สามารถเข้าถึงไมโครโฟนได้ กรุณาอนุญาตสิทธิ์การใช้งานไมค์ใน Safari/Chrome บน iOS');
-                console.error(e);
+                // เคลียร์ Canvas ให้ว่างเปล่า
+                const width = spectrumCanvas.width = spectrumCanvas.clientWidth;
+                const height = spectrumCanvas.height = spectrumCanvas.clientHeight;
+                canvasCtx.clearRect(0, 0, width, height);
             }
         }
 
@@ -607,7 +640,7 @@
         });
 
         startBtn.addEventListener('click', () => {
-            if (!isRunning) initAudio();
+            toggleAudioEngine();
         });
 
         let peaks = new Array(32).fill(0);
