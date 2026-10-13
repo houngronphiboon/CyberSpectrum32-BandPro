@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CyberSpectrum 32-Band Pro Audio Analyzer</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #05050a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-tech {
+            font-family: 'Orbitron', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f1020;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        input[type=range].eq-slider {
+            writing-mode: vertical-lr;
+            direction: rtl;
+            width: 24px;
+            height: 150px;
+            accent-color: #06b6d4;
+            cursor: pointer;
+            touch-action: none;
+        }
+        input[type=range].cal-slider {
+            writing-mode: vertical-lr;
+            direction: rtl;
+            width: 22px;
+            height: 110px;
+            accent-color: #f59e0b;
+            cursor: pointer;
+            touch-action: none;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 sm:p-6">
+
+    <!-- Top Header & Controls -->
+    <header class="w-full max-w-7xl mx-auto glass-panel rounded-2xl p-3 sm:p-4 mb-3 flex flex-col lg:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-tech font-bold text-base sm:text-xl text-cyan-400 tracking-wider neon-glow">CYBER-SPECTRUM 32</h1>
+                    <p class="text-[10px] text-slate-400">Pro Audio Frequency Analyzer & Graphic EQ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realtime Peak & Stats Banner -->
+        <div class="flex items-center justify-around w-full lg:w-auto gap-3 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
+            <div>
+                <div class="text-[9px] text-slate-400 font-tech">PEAK FREQ</div>
+                <div id="peakFreqVal" class="font-tech text-xs sm:text-sm text-cyan-300 font-semibold">0 Hz</div>
+            </div>
+            <div class="h-5 w-[1px] bg-slate-800"></div>
+            <div>
+                <div class="text-[9px] text-slate-400 font-tech">LEVEL</div>
+                <div id="dbLevelVal" class="font-tech text-xs sm:text-sm text-emerald-400 font-semibold">-∞ dB</div>
+            </div>
+        </div>
+
+        <!-- Master Actions, Mic Volume & Toggles -->
+        <div class="flex items-center gap-2 flex-wrap justify-center w-full lg:w-auto">
+            <!-- Mic Volume Control -->
+            <div class="flex items-center gap-2 bg-slate-900/90 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center text-[9px] font-tech text-slate-400 gap-2">
+                        <span>MIC GAIN</span>
+                        <span id="micGainText" class="text-cyan-300">100%</span>
+                    </div>
+                    <input type="range" id="micGainSlider" min="0" max="3" step="0.1" value="1" class="w-16 accent-cyan-400 cursor-pointer h-1 bg-slate-700 rounded-lg">
+                </div>
+            </div>
+
+            <!-- Response Speed Control -->
+            <div class="flex items-center gap-2 bg-slate-900/90 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center text-[9px] font-tech text-slate-400 gap-2">
+                        <span>SPEED</span>
+                        <span id="speedText" class="text-amber-300">Smooth</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.1" max="0.98" step="0.02" value="0.9" class="w-16 accent-amber-400 cursor-pointer h-1 bg-slate-700 rounded-lg">
+                </div>
+            </div>
+
+            <button id="startBtn" class="font-tech px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-lg shadow-cyan-500/20 cursor-pointer flex items-center gap-1.5">
+                เปิดไมโครโฟน
+            </button>
+            <button id="speakerToggle" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all cursor-pointer" title="เปิด/ปิดเสียงออกลำโพง">
+                <svg id="speakerIcon" class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Visualizer Area -->
+    <main class="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-3 mb-3">
+        
+        <!-- Canvas Screen -->
+        <div class="glass-panel rounded-2xl p-2.5 relative overflow-hidden flex flex-col">
+            <div class="absolute top-3 left-3 z-10 flex items-center gap-2">
+                <span id="statusIndicator" class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span id="statusText" class="font-tech text-[10px] text-cyan-400 tracking-wider">REALTIME SPECTRUM</span>
+            </div>
+            
+            <!-- Extra Controls for Freeze, Compare & Graph Mode -->
+            <div class="absolute top-2 right-3 z-10 flex items-center gap-1.5 flex-wrap justify-end">
+                <button id="freezeBtn" class="bg-slate-900/90 text-[10px] font-tech text-amber-300 border border-amber-500/50 rounded-lg px-2 py-1 transition-all cursor-pointer">
+                    Freeze
+                </button>
+                <button id="snapshotBtn" class="bg-gradient-to-r from-amber-500 to-orange-600 text-[10px] font-tech text-white rounded-lg px-2 py-1 transition-all cursor-pointer">
+                    Save Target
+                </button>
+                <button id="clearSnapshotBtn" class="bg-slate-900/90 text-[10px] font-tech text-rose-400 border border-rose-500/40 rounded-lg px-2 py-1 transition-all cursor-pointer hidden">
+                    Clear
+                </button>
+                <select id="graphMode" class="bg-slate-900/90 text-[10px] font-tech text-slate-300 border border-slate-700 rounded-lg px-2 py-1 focus:outline-none cursor-pointer">
+                    <option value="filledLine">Filled Line</option>
+                    <option value="bars">Bars + Peak</option>
+                    <option value="wave">Neon Wave</option>
+                </select>
+            </div>
+            
+            <!-- Canvas Container -->
+            <div class="w-full h-48 sm:h-64 mt-8 relative flex flex-col justify-between">
+                <canvas id="spectrumCanvas" class="w-full flex-1 rounded-xl bg-slate-950/60"></canvas>
+                <div id="spectrumAxis" class="w-full flex justify-between px-1 pt-1 text-[9px] font-tech text-slate-400 overflow-hidden"></div>
+            </div>
+        </div>
+
+        <!-- Microphone Calibration Panel (Collapsible) -->
+        <div class="glass-panel rounded-2xl p-3 border border-amber-500/30">
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleCalibPanel()">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <h3 class="font-tech text-xs text-amber-300 font-bold tracking-wide">⚙️ MIC CALIBRATION OFFSET</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetCalibration(event)" class="text-[10px] font-tech px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">รีเซ็ต</button>
+                    <span id="calibToggleArrow" class="text-amber-400 font-tech text-xs transform transition-transform">▼</span>
+                </div>
+            </div>
+            <div id="calibContent" class="hidden mt-3 pt-2 border-t border-slate-800">
+                <p class="text-[11px] text-slate-400 mb-2">ปรับชดเชยความเพี้ยนของไมโครโฟนแต่ละย่านความถี่</p>
+                <div class="w-full overflow-x-auto pb-2 pt-1">
+                    <div id="calibSlidersContainer" class="flex items-end justify-between gap-3 min-w-[950px] px-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 32-Band Graphic Equalizer Section -->
+        <div class="glass-panel rounded-2xl p-3 sm:p-5">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3 pb-2 border-b border-slate-800/80">
+                <div>
+                    <h2 class="font-tech text-xs sm:text-sm text-cyan-300 font-bold tracking-wide flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        32-BAND ISO GRAPHIC EQUALIZER
+                    </h2>
+                </div>
+
+                <!-- Presets, Auto EQ & Reset -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="autoEqualize()" class="text-[11px] font-tech px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow-md shadow-emerald-500/20 cursor-pointer flex items-center gap-1">
+                        ⚡ Auto EQ
+                    </button>
+                    <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-1 rounded-xl border border-slate-800">
+                        <button onclick="setPreset('flat')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-200">Flat</button>
+                        <button onclick="setPreset('bass')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300">Bass+</button>
+                        <button onclick="setPreset('vocal')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300">Vocal</button>
+                    </div>
+                    <button onclick="resetEQ()" class="text-[11px] font-tech px-2.5 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Custom User Presets Management Bar -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2 mb-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="presetNameInput" placeholder="ชื่อพรีเซ็ตของคุณ..." class="bg-slate-950 text-xs font-tech text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1 focus:outline-none flex-1 sm:w-56">
+                    <button onclick="saveUserPreset()" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-xs font-tech text-white rounded-lg px-2.5 py-1 shadow-md">
+                        บันทึก
+                    </button>
+                </div>
+                <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto" id="userPresetsContainer"></div>
+            </div>
+
+            <!-- 32 Sliders Scrollable Container (Optimized for Touch) -->
+            <div class="w-full overflow-x-auto pb-3 pt-2">
+                <div id="eqSlidersContainer" class="flex items-end justify-between gap-3 min-w-[950px] px-2"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-7xl mx-auto text-center text-[10px] text-slate-500 py-1 font-tech">
+        CyberSpectrum 32-Band Audio Engine &bull; Web Audio API Mobile Optimized
+    </footer>
+
+    <!-- JavaScript Audio Engine & UI Logic -->
+    <script>
+        const frequencies = [
+            20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630,
+            800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000
+        ];
+
+        let audioCtx = null;
+        let micStream = null;
+        let sourceNode = null;
+        let micGainNode = null;
+        let analyser = null;
+        let filterNodesGroup = [];
+        let gainNode = null;
+        let isRunning = false;
+        let isFrozen = false;
+        let speakerActive = false;
+        let snapshotData = null;
+
+        let micCalibration = JSON.parse(localStorage.getItem('cyber_mic_calib') || '[]');
+        if (micCalibration.length !== 32) {
+            micCalibration = new Array(32).fill(0);
+        }
+
+        const startBtn = document.getElementById('startBtn');
+        const speakerToggle = document.getElementById('speakerToggle');
+        const speakerIcon = document.getElementById('speakerIcon');
+        const spectrumCanvas = document.getElementById('spectrumCanvas');
+        const canvasCtx = spectrumCanvas.getContext('2d');
+        const eqSlidersContainer = document.getElementById('eqSlidersContainer');
+        const calibSlidersContainer = document.getElementById('calibSlidersContainer');
+        const spectrumAxis = document.getElementById('spectrumAxis');
+        const peakFreqVal = document.getElementById('peakFreqVal');
+        const dbLevelVal = document.getElementById('dbLevelVal');
+        const graphModeSelect = document.getElementById('graphMode');
+        const freezeBtn = document.getElementById('freezeBtn');
+        const snapshotBtn = document.getElementById('snapshotBtn');
+        const clearSnapshotBtn = document.getElementById('clearSnapshotBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const micGainSlider = document.getElementById('micGainSlider');
+        const micGainText = document.getElementById('micGainText');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedText = document.getElementById('speedText');
+        const presetNameInput = document.getElementById('presetNameInput');
+        const userPresetsContainer = document.getElementById('userPresetsContainer');
+        const calibContent = document.getElementById('calibContent');
+        const calibToggleArrow = document.getElementById('calibToggleArrow');
+
+        function formatFreq(hz) {
+            return hz >= 1000 ? (hz / 1000) + 'k' : hz;
+        }
+
+        function initEQSliders() {
+            eqSlidersContainer.innerHTML = '';
+            calibSlidersContainer.innerHTML = '';
+            spectrumAxis.innerHTML = '';
+            
+            frequencies.forEach((freq, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex flex-col items-center gap-1.5 flex-1';
+                wrapper.innerHTML = `
+                    <span id="gainVal_${index}" class="text-[9px] font-tech text-cyan-400">0 dB</span>
+                    <div class="h-40 flex items-center justify-center py-1">
+                        <input type="range" min="-20" max="20" step="0.5" value="0" 
+                            class="eq-slider" id="eqSlider_${index}" 
+                            oninput="updateFilterGain(${index}, this.value)">
+                    </div>
+                    <span class="text-[9px] font-tech text-slate-400 whitespace-nowrap">${formatFreq(freq)}</span>
+                `;
+                eqSlidersContainer.appendChild(wrapper);
+
+                const calWrapper = document.createElement('div');
+                calWrapper.className = 'flex flex-col items-center gap-1 flex-1';
+                const currentCalVal = micCalibration[index] || 0;
+                calWrapper.innerHTML = `
+                    <span id="calVal_${index}" class="text-[9px] font-tech text-amber-400">${currentCalVal > 0 ? '+' : ''}${currentCalVal}dB</span>
+                    <div class="h-32 flex items-center justify-center py-1">
+                        <input type="range" min="-15" max="15" step="0.5" value="${currentCalVal}" 
+                            class="cal-slider" id="calSlider_${index}" 
+                            oninput="updateCalibValue(${index}, this.value)">
+                    </div>
+                    <span class="text-[9px] font-tech text-slate-500 whitespace-nowrap">${formatFreq(freq)}</span>
+                `;
+                calibSlidersContainer.appendChild(calWrapper);
+
+                const lbl = document.createElement('span');
+                lbl.className = 'text-center flex-1 text-[8px] sm:text-[9px] truncate';
+                lbl.textContent = formatFreq(freq);
+                spectrumAxis.appendChild(lbl);
+            });
+            renderUserPresets();
+        }
+
+        window.toggleCalibPanel = function() {
+            if (calibContent.classList.contains('hidden')) {
+                calibContent.classList.remove('hidden');
+                calibToggleArrow.style.transform = 'rotate(180deg)';
+            } else {
+                calibContent.classList.add('hidden');
+                calibToggleArrow.style.transform = 'rotate(0deg)';
+            }
+        };
+
+        window.updateCalibValue = function(index, value) {
+            const valNum = parseFloat(value);
+            micCalibration[index] = valNum;
+            document.getElementById(`calVal_${index}`).textContent = (valNum > 0 ? '+' : '') + valNum + 'dB';
+            localStorage.setItem('cyber_mic_calib', JSON.stringify(micCalibration));
+        };
+
+        window.resetCalibration = function(event) {
+            event.stopPropagation();
+            if (confirm('คุณต้องการรีเซ็ตค่าชดเชยไมโครโฟนทั้งหมดกลับเป็น 0 ใช่หรือไม่?')) {
+                micCalibration = new Array(32).fill(0);
+                localStorage.setItem('cyber_mic_calib', JSON.stringify(micCalibration));
+                initEQSliders();
+            }
+        };
+
+        window.autoEqualize = function() {
+            if (!analyser || !isRunning) {
+                alert('กรุณาเปิดไมโครโฟนก่อนใช้งาน Auto Equalize ครับ');
+                return;
+            }
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+
+            const nyquist = audioCtx.sampleRate / 2;
+            let targetValues = [];
+            let sumVal = 0;
+
+            for (let i = 0; i < 32; i++) {
+                const binIndex = Math.round((frequencies[i] / nyquist) * bufferLength);
+                let rawVal = dataArray[Math.min(binIndex, bufferLength - 1)] || 1;
+                let correctedVal = rawVal * Math.pow(10, (micCalibration[i] || 0) / 20);
+                targetValues.push(correctedVal);
+                sumVal += correctedVal;
+            }
+            const avgVal = sumVal / 32;
+
+            for (let i = 0; i < 32; i++) {
+                const currentVal = targetValues[i];
+                let diff = 0;
+                if (currentVal > 5) {
+                    diff = 20 * Math.log10(avgVal / currentVal);
+                }
+                let newGain = Math.max(-15, Math.min(15, -diff));
+                
+                const slider = document.getElementById(`eqSlider_${i}`);
+                if (slider) {
+                    slider.value = newGain.toFixed(1);
+                    updateFilterGain(i, slider.value);
+                }
+            }
+        };
+
+        window.saveUserPreset = function() {
+            const name = presetNameInput.value.trim();
+            if (!name) {
+                alert('กรุณาตั้งชื่อพรีเซ็ตก่อนบันทึกครับ');
+                return;
+            }
+            let currentValues = [];
+            for (let i = 0; i < 32; i++) {
+                const slider = document.getElementById(`eqSlider_${i}`);
+                currentValues.push(slider ? parseFloat(slider.value) : 0);
+            }
+
+            let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+            savedPresets[name] = currentValues;
+            localStorage.setItem('cyber_eq_presets', JSON.stringify(savedPresets));
+            
+            presetNameInput.value = '';
+            renderUserPresets();
+        };
+
+        window.loadUserPreset = function(name) {
+            let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+            const values = savedPresets[name];
+            if (values && Array.isArray(values)) {
+                values.forEach((val, i) => {
+                    const slider = document.getElementById(`eqSlider_${i}`);
+                    if (slider) {
+                        slider.value = val;
+                        updateFilterGain(i, val);
+                    }
+                });
+            }
+        };
+
+        window.deleteUserPreset = function(name, event) {
+            event.stopPropagation();
+            if (confirm(`คุณต้องการลบพรีเซ็ต "${name}" ใช่หรือไม่?`)) {
+                let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+                delete savedPresets[name];
+                localStorage.setItem('cyber_eq_presets', JSON.stringify(savedPresets));
+                renderUserPresets();
+            }
+        };
+
+        function renderUserPresets() {
+            userPresetsContainer.innerHTML = '';
+            let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+            const keys = Object.keys(savedPresets);
+
+            if (keys.length === 0) {
+                userPresetsContainer.innerHTML = '<span class="text-[10px] text-slate-500 font-tech italic">ยังไม่มีพรีเซ็ต</span>';
+                return;
+            }
+
+            keys.forEach(name => {
+                const btnWrapper = document.createElement('div');
+                btnWrapper.className = 'flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-tech text-cyan-300 cursor-pointer';
+                btnWrapper.innerHTML = `
+                    <span onclick="loadUserPreset('${name}')">${name}</span>
+                    <span onclick="deleteUserPreset('${name}', event)" class="text-rose-400 font-bold px-0.5">&times;</span>
+                `;
+                userPresetsContainer.appendChild(btnWrapper);
+            });
+        }
+
+        async function initAudio() {
+            if (isRunning) return;
+            try {
+                // รองรับ iOS AudioContext
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+                
+                // สำหรับ iOS ต้อง resume context หากอยู่ในสถานะ suspended
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+                sourceNode = audioCtx.createMediaStreamSource(micStream);
+                
+                micGainNode = audioCtx.createGain();
+                micGainNode.gain.value = parseFloat(micGainSlider.value);
+
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 4096;
+                analyser.smoothingTimeConstant = parseFloat(speedSlider.value);
+
+                gainNode = audioCtx.createGain();
+                gainNode.gain.value = speakerActive ? 1.0 : 0.0;
+
+                filterNodesGroup = [];
+                let lastNode = micGainNode;
+                
+                frequencies.forEach(freq => {
+                    const f1 = audioCtx.createBiquadFilter();
+                    const f2 = audioCtx.createBiquadFilter();
+                    
+                    [f1, f2].forEach(f => {
+                        f.type = 'peaking';
+                        f.frequency.value = freq;
+                        f.Q.value = 5.0; 
+                        f.gain.value = 0.0;
+                    });
+                    
+                    lastNode.connect(f1);
+                    f1.connect(f2);
+                    lastNode = f2;
+                    
+                    filterNodesGroup.push([f1, f2]);
+                });
+
+                sourceNode.connect(micGainNode);
+                lastNode.connect(analyser);
+                analyser.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                isRunning = true;
+                startBtn.textContent = 'ระบบทำงานแล้ว';
+                startBtn.className = 'font-tech px-3 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-xs shadow-lg shadow-emerald-600/30';
+
+                visualize();
+            } catch (e) {
+                alert('ไม่สามารถเข้าถึงไมโครโฟนได้ กรุณาอนุญาตสิทธิ์การใช้งานไมค์ใน Safari/Chrome บน iOS');
+                console.error(e);
+            }
+        }
+
+        micGainSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            micGainText.textContent = Math.round(val * 100) + '%';
+            if (micGainNode) micGainNode.gain.value = val;
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (analyser) analyser.smoothingTimeConstant = val;
+            if (val < 0.4) speedText.textContent = 'Fast';
+            else if (val > 0.85) speedText.textContent = 'Ultra Smooth';
+            else speedText.textContent = 'Smooth';
+        });
+
+        window.updateFilterGain = function(index, value) {
+            document.getElementById(`gainVal_${index}`).textContent = value + ' dB';
+            const valNum = parseFloat(value);
+            if (filterNodesGroup && filterNodesGroup[index]) {
+                filterNodesGroup[index][0].gain.value = valNum;
+                filterNodesGroup[index][1].gain.value = valNum;
+            }
+        };
+
+        window.setPreset = function(type) {
+            let values = new Array(32).fill(0);
+            if (type === 'bass') {
+                values = [6, 6, 5, 4, 3, 2, 1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            } else if (type === 'vocal') {
+                values = [-2, -2, -1, 0, 0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0, 1, 2, 3, 3, 2, 1, 0, -1, -2, -2, -3, -3, -4, -4];
+            }
+            values.forEach((val, i) => {
+                const slider = document.getElementById(`eqSlider_${i}`);
+                if (slider) {
+                    slider.value = val;
+                    updateFilterGain(i, val);
+                }
+            });
+        };
+
+        window.resetEQ = function() {
+            for (let i = 0; i < 32; i++) {
+                const slider = document.getElementById(`eqSlider_${i}`);
+                if (slider) {
+                    slider.value = 0;
+                    updateFilterGain(i, 0);
+                }
+            }
+        };
+
+        freezeBtn.addEventListener('click', () => {
+            isFrozen = !isFrozen;
+            if (isFrozen) {
+                freezeBtn.className = 'bg-amber-600 text-[10px] font-tech text-white border border-amber-400 rounded-lg px-2 py-1';
+                statusIndicator.className = 'inline-block w-2 h-2 rounded-full bg-amber-400';
+                statusText.textContent = 'SPECTRUM FROZEN';
+            } else {
+                freezeBtn.className = 'bg-slate-900/90 text-[10px] font-tech text-amber-300 border border-amber-500/50 rounded-lg px-2 py-1';
+                statusIndicator.className = 'inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse';
+                statusText.textContent = 'REALTIME SPECTRUM';
+            }
+        });
+
+        snapshotBtn.addEventListener('click', () => {
+            if (!analyser) return;
+            const bufferLength = analyser.frequencyBinCount;
+            const tempArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(tempArray);
+            snapshotData = new Uint8Array(tempArray);
+            
+            clearSnapshotBtn.classList.remove('hidden');
+            snapshotBtn.textContent = 'Saved';
+            setTimeout(() => { snapshotBtn.textContent = 'Save Target'; }, 1500);
+        });
+
+        clearSnapshotBtn.addEventListener('click', () => {
+            snapshotData = null;
+            clearSnapshotBtn.classList.add('hidden');
+        });
+
+        speakerToggle.addEventListener('click', () => {
+            speakerActive = !speakerActive;
+            if (gainNode) gainNode.gain.value = speakerActive ? 1.0 : 0.0;
+            if (speakerActive) {
+                speakerToggle.className = 'p-2 rounded-xl bg-cyan-600/30 border border-cyan-500 text-cyan-300';
+                speakerIcon.className = 'w-4 h-4 text-cyan-300';
+            } else {
+                speakerToggle.className = 'p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300';
+                speakerIcon.className = 'w-4 h-4 text-rose-400';
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            if (!isRunning) initAudio();
+        });
+
+        let peaks = new Array(32).fill(0);
+        let frozenDataArray = null;
+
+        function drawSmoothCurve(ctx, points, closed = false, fillColor = null) {
+            if (points.length === 0) return;
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i === 0 ? 0 : i - 1];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[i + 2 < points.length ? i + 2 : points.length - 1];
+
+                const cp1x = p1.x + (p2.x - p0.x) / 6;
+                const cp1y = p1.y + (p2.y - p0.y) / 6;
+                const cp2x = p2.x - (p3.x - p1.x) / 6;
+                const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+            }
+
+            if (closed) {
+                ctx.lineTo(points[points.length - 1].x, ctx.canvas.height);
+                ctx.lineTo(points[0].x, ctx.canvas.height);
+                ctx.closePath();
+                if (fillColor) {
+                    ctx.fillStyle = fillColor;
+                    ctx.fill();
+                }
+            }
+        }
+
+        function visualize() {
+            if (!isRunning) return;
+            requestAnimationFrame(visualize);
+
+            const width = spectrumCanvas.width = spectrumCanvas.clientWidth;
+            const height = spectrumCanvas.height = spectrumCanvas.clientHeight;
+
+            const bufferLength = analyser.frequencyBinCount;
+            let dataArray = new Uint8Array(bufferLength);
+
+            if (!isFrozen) {
+                analyser.getByteFrequencyData(dataArray);
+                frozenDataArray = new Uint8Array(dataArray);
+            } else if (frozenDataArray) {
+                dataArray = frozenDataArray;
+            }
+
+            canvasCtx.clearRect(0, 0, width, height);
+
+            canvasCtx.strokeStyle = 'rgba(59, 130, 246, 0.08)';
+            canvasCtx.lineWidth = 1;
+            for (let x = 0; x < width; x += 40) {
+                canvasCtx.beginPath(); canvasCtx.moveTo(x, 0); canvasCtx.lineTo(x, height); canvasCtx.stroke();
+            }
+            for (let y = 0; y < height; y += 30) {
+                canvasCtx.beginPath(); canvasCtx.moveTo(0, y); canvasCtx.lineTo(width, y); canvasCtx.stroke();
+            }
+
+            const bandValues = [];
+            const nyquist = audioCtx.sampleRate / 2;
+            let maxVal = 0;
+            let peakIndex = 0;
+
+            for (let i = 0; i < 32; i++) {
+                const binIndex = Math.round((frequencies[i] / nyquist) * bufferLength);
+                const rawVal = dataArray[Math.min(binIndex, bufferLength - 1)] / 255.0;
+                const calOffset = micCalibration[i] || 0;
+                const correctedVal = rawVal * Math.pow(10, calOffset / 20);
+                bandValues.push(Math.min(Math.max(correctedVal, 0), 1.0));
+            }
+
+            for (let i = 0; i < bufferLength; i++) {
+                if (dataArray[i] > maxVal) {
+                    maxVal = dataArray[i];
+                    peakIndex = i;
+                }
+            }
+
+            if (snapshotData) {
+                const snapPoints = [];
+                const stepX = width / 31;
+                for (let i = 0; i < 32; i++) {
+                    const binIndex = Math.round((frequencies[i] / nyquist) * bufferLength);
+                    const rawSnap = snapshotData[Math.min(binIndex, bufferLength - 1)] || 0;
+                    const correctedSnap = rawSnap * Math.pow(10, (micCalibration[i] || 0) / 20);
+                    const v = Math.min(Math.max(correctedSnap, 0), 255) / 255.0;
+                    snapPoints.push({ x: i * stepX, y: height - (v * height) });
+                }
+                canvasCtx.strokeStyle = 'rgba(245, 158, 11, 0.8)';
+                canvasCtx.lineWidth = 2;
+                drawSmoothCurve(canvasCtx, snapPoints, false);
+                canvasCtx.stroke();
+            }
+
+            const mode = graphModeSelect.value;
+
+            if (mode === 'filledLine' || mode === 'wave') {
+                const points = [];
+                const stepX = width / 31;
+                for (let i = 0; i < 32; i++) {
+                    points.push({ x: i * stepX, y: height - (bandValues[i] * height) });
+                }
+
+                if (mode === 'filledLine') {
+                    const fillGrad = canvasCtx.createLinearGradient(0, 0, 0, height);
+                    fillGrad.addColorStop(0, 'rgba(59, 130, 246, 0.55)');
+                    fillGrad.addColorStop(1, 'rgba(30, 27, 75, 0.15)');
+                    drawSmoothCurve(canvasCtx, points, true, fillGrad);
+
+                    canvasCtx.strokeStyle = '#3b82f6';
+                    canvasCtx.lineWidth = 2.5;
+                    drawSmoothCurve(canvasCtx, points, false);
+                    canvasCtx.stroke();
+                } else {
+                    canvasCtx.strokeStyle = '#06b6d4';
+                    canvasCtx.lineWidth = 2.5;
+                    drawSmoothCurve(canvasCtx, points, false);
+                    canvasCtx.stroke();
+                }
+
+            } else if (mode === 'bars') {
+                const barCount = 32;
+                const barWidth = width / barCount;
+
+                for (let i = 0; i < barCount; i++) {
+                    const barHeight = bandValues[i] * height;
+
+                    if (!isFrozen) {
+                        if (barHeight > peaks[i]) peaks[i] = barHeight;
+                        else { peaks[i] -= 1.0; if (peaks[i] < 0) peaks[i] = 0; }
+                    }
+
+                    const gradient = canvasCtx.createLinearGradient(0, height - barHeight, 0, height);
+                    gradient.addColorStop(0, '#06b6d4');
+                    gradient.addColorStop(0.5, '#3b82f6');
+                    gradient.addColorStop(1, '#6366f1');
+
+                    canvasCtx.fillStyle = gradient;
+                    canvasCtx.fillRect(i * barWidth + 1, height - barHeight, barWidth - 2, barHeight);
+
+                    canvasCtx.fillStyle = '#22d3ee';
+                    canvasCtx.fillRect(i * barWidth + 1, height - peaks[i] - 2, barWidth - 2, 2);
+                }
+            }
+
+            if (audioCtx && !isFrozen) {
+                const calculatedPeakFreq = Math.round((peakIndex / bufferLength) * nyquist);
+                peakFreqVal.textContent = calculatedPeakFreq > 0 ? calculatedPeakFreq + ' Hz' : '0 Hz';
+                const dbApprox = Math.round((maxVal / 255) * 60 - 80);
+                dbLevelVal.textContent = maxVal > 5 ? dbApprox + ' dB' : '-∞ dB';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initEQSliders();
+        });
+    </script>
+</body>
+</html>
