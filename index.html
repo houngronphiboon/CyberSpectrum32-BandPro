@@ -34,16 +34,7 @@
             writing-mode: vertical-lr;
             direction: rtl;
             width: 24px;
-            height: 150px;
-            accent-color: #06b6d4;
-            cursor: pointer;
-            touch-action: none;
-        }
-        input[type=range].cal-slider {
-            writing-mode: vertical-lr;
-            direction: rtl;
-            width: 22px;
-            height: 110px;
+            height: 160px;
             accent-color: #f59e0b;
             cursor: pointer;
             touch-action: none;
@@ -73,7 +64,7 @@
                 </div>
                 <div>
                     <h1 class="font-tech font-bold text-base sm:text-xl text-cyan-400 tracking-wider neon-glow">CYBER-SPECTRUM 32</h1>
-                    <p class="text-[10px] text-slate-400">Pro Audio Frequency Analyzer & Graphic EQ</p>
+                    <p class="text-[10px] text-slate-400">Pro Audio Frequency Analyzer & Mic Calibration</p>
                 </div>
             </div>
         </div>
@@ -160,58 +151,31 @@
             </div>
         </div>
 
-        <!-- Microphone Calibration Panel (Collapsible) -->
-        <div class="glass-panel rounded-2xl p-3 border border-amber-500/30">
-            <div class="flex items-center justify-between cursor-pointer" onclick="toggleCalibPanel()">
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                    <h3 class="font-tech text-xs text-amber-300 font-bold tracking-wide">⚙️ MIC CALIBRATION OFFSET</h3>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="resetCalibration(event)" class="text-[10px] font-tech px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">รีเซ็ต</button>
-                    <span id="calibToggleArrow" class="text-amber-400 font-tech text-xs transform transition-transform">▼</span>
-                </div>
-            </div>
-            <div id="calibContent" class="hidden mt-3 pt-2 border-t border-slate-800">
-                <p class="text-[11px] text-slate-400 mb-2">ปรับชดเชยความเพี้ยนของไมโครโฟนแต่ละย่านความถี่</p>
-                <div class="w-full overflow-x-auto pb-2 pt-1">
-                    <div id="calibSlidersContainer" class="flex items-end justify-between gap-3 min-w-[950px] px-2"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 32-Band Graphic Equalizer Section -->
-        <div class="glass-panel rounded-2xl p-3 sm:p-5">
+        <!-- 32-Band Microphone Calibration Equalizer Section -->
+        <div class="glass-panel rounded-2xl p-3 sm:p-5 border border-amber-500/30">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3 pb-2 border-b border-slate-800/80">
                 <div>
-                    <h2 class="font-tech text-xs sm:text-sm text-cyan-300 font-bold tracking-wide flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                        32-BAND ISO GRAPHIC EQUALIZER
+                    <h2 class="font-tech text-xs sm:text-sm text-amber-300 font-bold tracking-wide flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        32-BAND MICROPHONE CALIBRATION EQUALIZER
                     </h2>
+                    <p class="text-[10px] text-slate-400">ปรับค่าชดเชยแต่ละย่านความถี่ของไมค์โดยตรง</p>
                 </div>
 
-                <!-- Presets, Auto EQ & Reset -->
+                <!-- Presets & Reset -->
                 <div class="flex items-center gap-2 flex-wrap">
-                    <button onclick="autoEqualize()" class="text-[11px] font-tech px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow-md shadow-emerald-500/20 cursor-pointer flex items-center gap-1">
-                        ⚡ Auto EQ
-                    </button>
-                    <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-1 rounded-xl border border-slate-800">
-                        <button onclick="setPreset('flat')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-200">Flat</button>
-                        <button onclick="setPreset('bass')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300">Bass+</button>
-                        <button onclick="setPreset('vocal')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300">Vocal</button>
-                    </div>
-                    <button onclick="resetEQ()" class="text-[11px] font-tech px-2.5 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                        Reset
+                    <button onclick="resetCalibration()" class="text-[11px] font-tech px-2.5 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        Reset Calibration
                     </button>
                 </div>
             </div>
 
-            <!-- Custom User Presets Management Bar -->
+            <!-- Custom User Calibration Presets Management Bar -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2 mb-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <input type="text" id="presetNameInput" placeholder="ชื่อพรีเซ็ตของคุณ..." class="bg-slate-950 text-xs font-tech text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1 focus:outline-none flex-1 sm:w-56">
-                    <button onclick="saveUserPreset()" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-xs font-tech text-white rounded-lg px-2.5 py-1 shadow-md">
-                        บันทึก
+                    <input type="text" id="presetNameInput" placeholder="ชื่อพรีเซ็ตไมค์ของคุณ..." class="bg-slate-950 text-xs font-tech text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1 focus:outline-none flex-1 sm:w-56">
+                    <button onclick="saveUserPreset()" class="bg-gradient-to-r from-amber-500 to-orange-600 text-xs font-tech text-white rounded-lg px-2.5 py-1 shadow-md">
+                        บันทึกพรีเซ็ต
                     </button>
                 </div>
                 <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto" id="userPresetsContainer"></div>
@@ -227,7 +191,7 @@
 
     <!-- Footer -->
     <footer class="w-full max-w-7xl mx-auto text-center text-[10px] text-slate-500 py-1 font-tech">
-        CyberSpectrum 32-Band Audio Engine &bull; Web Audio API Mobile Optimized
+        CyberSpectrum 32-Band Mic Calibration Engine &bull; Web Audio API Mobile Optimized
     </footer>
 
     <!-- JavaScript Audio Engine & UI Logic -->
@@ -242,14 +206,12 @@
         let sourceNode = null;
         let micGainNode = null;
         let analyser = null;
-        let filterNodesGroup = [];
-        let gainNode = null;
         let isRunning = false;
         let isFrozen = false;
         let speakerActive = false;
         let snapshotData = null;
 
-        let micCalibration = JSON.parse(localStorage.getItem('cyber_mic_calib') || '[]');
+        let micCalibration = JSON.parse(localStorage.getItem('cyber_mic_calib_v2') || '[]');
         if (micCalibration.length !== 32) {
             micCalibration = new Array(32).fill(0);
         }
@@ -260,7 +222,6 @@
         const spectrumCanvas = document.getElementById('spectrumCanvas');
         const canvasCtx = spectrumCanvas.getContext('2d');
         const eqSlidersContainer = document.getElementById('eqSlidersContainer');
-        const calibSlidersContainer = document.getElementById('calibSlidersContainer');
         const spectrumAxis = document.getElementById('spectrumAxis');
         const peakFreqVal = document.getElementById('peakFreqVal');
         const dbLevelVal = document.getElementById('dbLevelVal');
@@ -276,8 +237,6 @@
         const speedText = document.getElementById('speedText');
         const presetNameInput = document.getElementById('presetNameInput');
         const userPresetsContainer = document.getElementById('userPresetsContainer');
-        const calibContent = document.getElementById('calibContent');
-        const calibToggleArrow = document.getElementById('calibToggleArrow');
 
         function formatFreq(hz) {
             return hz >= 1000 ? (hz / 1000) + 'k' : hz;
@@ -285,36 +244,22 @@
 
         function initEQSliders() {
             eqSlidersContainer.innerHTML = '';
-            calibSlidersContainer.innerHTML = '';
             spectrumAxis.innerHTML = '';
             
             frequencies.forEach((freq, index) => {
+                const currentVal = micCalibration[index] || 0;
                 const wrapper = document.createElement('div');
                 wrapper.className = 'flex flex-col items-center gap-1.5 flex-1';
                 wrapper.innerHTML = `
-                    <span id="gainVal_${index}" class="text-[9px] font-tech text-cyan-400">0 dB</span>
-                    <div class="h-40 flex items-center justify-center py-1">
-                        <input type="range" min="-20" max="20" step="0.5" value="0" 
+                    <span id="gainVal_${index}" class="text-[9px] font-tech text-amber-400">${currentVal > 0 ? '+' : ''}${currentVal} dB</span>
+                    <div class="h-44 flex items-center justify-center py-1">
+                        <input type="range" min="-15" max="15" step="0.5" value="${currentVal}" 
                             class="eq-slider" id="eqSlider_${index}" 
-                            oninput="updateFilterGain(${index}, this.value)">
+                            oninput="updateCalibValue(${index}, this.value)">
                     </div>
                     <span class="text-[9px] font-tech text-slate-400 whitespace-nowrap">${formatFreq(freq)}</span>
                 `;
                 eqSlidersContainer.appendChild(wrapper);
-
-                const calWrapper = document.createElement('div');
-                calWrapper.className = 'flex flex-col items-center gap-1 flex-1';
-                const currentCalVal = micCalibration[index] || 0;
-                calWrapper.innerHTML = `
-                    <span id="calVal_${index}" class="text-[9px] font-tech text-amber-400">${currentCalVal > 0 ? '+' : ''}${currentCalVal}dB</span>
-                    <div class="h-32 flex items-center justify-center py-1">
-                        <input type="range" min="-15" max="15" step="0.5" value="${currentCalVal}" 
-                            class="cal-slider" id="calSlider_${index}" 
-                            oninput="updateCalibValue(${index}, this.value)">
-                    </div>
-                    <span class="text-[9px] font-tech text-slate-500 whitespace-nowrap">${formatFreq(freq)}</span>
-                `;
-                calibSlidersContainer.appendChild(calWrapper);
 
                 const lbl = document.createElement('span');
                 lbl.className = 'text-center flex-1 text-[8px] sm:text-[9px] truncate';
@@ -324,67 +269,18 @@
             renderUserPresets();
         }
 
-        window.toggleCalibPanel = function() {
-            if (calibContent.classList.contains('hidden')) {
-                calibContent.classList.remove('hidden');
-                calibToggleArrow.style.transform = 'rotate(180deg)';
-            } else {
-                calibContent.classList.add('hidden');
-                calibToggleArrow.style.transform = 'rotate(0deg)';
-            }
-        };
-
         window.updateCalibValue = function(index, value) {
             const valNum = parseFloat(value);
             micCalibration[index] = valNum;
-            document.getElementById(`calVal_${index}`).textContent = (valNum > 0 ? '+' : '') + valNum + 'dB';
-            localStorage.setItem('cyber_mic_calib', JSON.stringify(micCalibration));
+            document.getElementById(`gainVal_${index}`).textContent = (valNum > 0 ? '+' : '') + valNum + ' dB';
+            localStorage.setItem('cyber_mic_calib_v2', JSON.stringify(micCalibration));
         };
 
-        window.resetCalibration = function(event) {
-            event.stopPropagation();
+        window.resetCalibration = function() {
             if (confirm('คุณต้องการรีเซ็ตค่าชดเชยไมโครโฟนทั้งหมดกลับเป็น 0 ใช่หรือไม่?')) {
                 micCalibration = new Array(32).fill(0);
-                localStorage.setItem('cyber_mic_calib', JSON.stringify(micCalibration));
+                localStorage.setItem('cyber_mic_calib_v2', JSON.stringify(micCalibration));
                 initEQSliders();
-            }
-        };
-
-        window.autoEqualize = function() {
-            if (!analyser || !isRunning) {
-                alert('กรุณาเปิดไมโครโฟนก่อนใช้งาน Auto Equalize ครับ');
-                return;
-            }
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteFrequencyData(dataArray);
-
-            const nyquist = audioCtx.sampleRate / 2;
-            let targetValues = [];
-            let sumVal = 0;
-
-            for (let i = 0; i < 32; i++) {
-                const binIndex = Math.round((frequencies[i] / nyquist) * bufferLength);
-                let rawVal = dataArray[Math.min(binIndex, bufferLength - 1)] || 1;
-                let correctedVal = rawVal * Math.pow(10, (micCalibration[i] || 0) / 20);
-                targetValues.push(correctedVal);
-                sumVal += correctedVal;
-            }
-            const avgVal = sumVal / 32;
-
-            for (let i = 0; i < 32; i++) {
-                const currentVal = targetValues[i];
-                let diff = 0;
-                if (currentVal > 5) {
-                    diff = 20 * Math.log10(avgVal / currentVal);
-                }
-                let newGain = Math.max(-15, Math.min(15, -diff));
-                
-                const slider = document.getElementById(`eqSlider_${i}`);
-                if (slider) {
-                    slider.value = newGain.toFixed(1);
-                    updateFilterGain(i, slider.value);
-                }
             }
         };
 
@@ -394,47 +290,37 @@
                 alert('กรุณาตั้งชื่อพรีเซ็ตก่อนบันทึกครับ');
                 return;
             }
-            let currentValues = [];
-            for (let i = 0; i < 32; i++) {
-                const slider = document.getElementById(`eqSlider_${i}`);
-                currentValues.push(slider ? parseFloat(slider.value) : 0);
-            }
-
-            let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
-            savedPresets[name] = currentValues;
-            localStorage.setItem('cyber_eq_presets', JSON.stringify(savedPresets));
+            let savedPresets = JSON.parse(localStorage.getItem('cyber_calib_presets') || '{}');
+            savedPresets[name] = [...micCalibration];
+            localStorage.setItem('cyber_calib_presets', JSON.stringify(savedPresets));
             
             presetNameInput.value = '';
             renderUserPresets();
         };
 
         window.loadUserPreset = function(name) {
-            let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+            let savedPresets = JSON.parse(localStorage.getItem('cyber_calib_presets') || '{}');
             const values = savedPresets[name];
             if (values && Array.isArray(values)) {
-                values.forEach((val, i) => {
-                    const slider = document.getElementById(`eqSlider_${i}`);
-                    if (slider) {
-                        slider.value = val;
-                        updateFilterGain(i, val);
-                    }
-                });
+                micCalibration = [...values];
+                localStorage.setItem('cyber_mic_calib_v2', JSON.stringify(micCalibration));
+                initEQSliders();
             }
         };
 
         window.deleteUserPreset = function(name, event) {
             event.stopPropagation();
             if (confirm(`คุณต้องการลบพรีเซ็ต "${name}" ใช่หรือไม่?`)) {
-                let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+                let savedPresets = JSON.parse(localStorage.getItem('cyber_calib_presets') || '{}');
                 delete savedPresets[name];
-                localStorage.setItem('cyber_eq_presets', JSON.stringify(savedPresets));
+                localStorage.setItem('cyber_calib_presets', JSON.stringify(savedPresets));
                 renderUserPresets();
             }
         };
 
         function renderUserPresets() {
             userPresetsContainer.innerHTML = '';
-            let savedPresets = JSON.parse(localStorage.getItem('cyber_eq_presets') || '{}');
+            let savedPresets = JSON.parse(localStorage.getItem('cyber_calib_presets') || '{}');
             const keys = Object.keys(savedPresets);
 
             if (keys.length === 0) {
@@ -444,7 +330,7 @@
 
             keys.forEach(name => {
                 const btnWrapper = document.createElement('div');
-                btnWrapper.className = 'flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-tech text-cyan-300 cursor-pointer';
+                btnWrapper.className = 'flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-tech text-amber-300 cursor-pointer';
                 btnWrapper.innerHTML = `
                     <span onclick="loadUserPreset('${name}')">${name}</span>
                     <span onclick="deleteUserPreset('${name}', event)" class="text-rose-400 font-bold px-0.5">&times;</span>
@@ -455,7 +341,6 @@
 
         async function toggleAudioEngine() {
             if (!isRunning) {
-                // เปิดการทำงาน
                 try {
                     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                     audioCtx = new AudioContextClass();
@@ -474,34 +359,13 @@
                     analyser.fftSize = 4096;
                     analyser.smoothingTimeConstant = parseFloat(speedSlider.value);
 
-                    gainNode = audioCtx.createGain();
-                    gainNode.gain.value = speakerActive ? 1.0 : 0.0;
-
-                    filterNodesGroup = [];
-                    let lastNode = micGainNode;
-                    
-                    frequencies.forEach(freq => {
-                        const f1 = audioCtx.createBiquadFilter();
-                        const f2 = audioCtx.createBiquadFilter();
-                        
-                        [f1, f2].forEach(f => {
-                            f.type = 'peaking';
-                            f.frequency.value = freq;
-                            f.Q.value = 5.0; 
-                            f.gain.value = 0.0;
-                        });
-                        
-                        lastNode.connect(f1);
-                        f1.connect(f2);
-                        lastNode = f2;
-                        
-                        filterNodesGroup.push([f1, f2]);
-                    });
-
+                    // ต่อตรงจาก Mic ไป Analyzer โดยไม่ต้องผ่านตัวกรอง Biquad ซ้ำซ้อน
                     sourceNode.connect(micGainNode);
-                    lastNode.connect(analyser);
-                    analyser.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
+                    micGainNode.connect(analyser);
+
+                    if (speakerActive) {
+                        analyser.connect(audioCtx.destination);
+                    }
 
                     isRunning = true;
                     startBtn.textContent = 'ระบบทำงานแล้ว';
@@ -517,7 +381,6 @@
                     console.error(e);
                 }
             } else {
-                // ปิดการทำงาน (Return to initial standby state)
                 if (micStream) {
                     micStream.getTracks().forEach(track => track.stop());
                 }
@@ -541,7 +404,6 @@
                 peakFreqVal.textContent = '0 Hz';
                 dbLevelVal.textContent = '-∞ dB';
 
-                // เคลียร์ Canvas ให้ว่างเปล่า
                 const width = spectrumCanvas.width = spectrumCanvas.clientWidth;
                 const height = spectrumCanvas.height = spectrumCanvas.clientHeight;
                 canvasCtx.clearRect(0, 0, width, height);
@@ -561,41 +423,6 @@
             else if (val > 0.85) speedText.textContent = 'Ultra Smooth';
             else speedText.textContent = 'Smooth';
         });
-
-        window.updateFilterGain = function(index, value) {
-            document.getElementById(`gainVal_${index}`).textContent = value + ' dB';
-            const valNum = parseFloat(value);
-            if (filterNodesGroup && filterNodesGroup[index]) {
-                filterNodesGroup[index][0].gain.value = valNum;
-                filterNodesGroup[index][1].gain.value = valNum;
-            }
-        };
-
-        window.setPreset = function(type) {
-            let values = new Array(32).fill(0);
-            if (type === 'bass') {
-                values = [6, 6, 5, 4, 3, 2, 1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            } else if (type === 'vocal') {
-                values = [-2, -2, -1, 0, 0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0, 1, 2, 3, 3, 2, 1, 0, -1, -2, -2, -3, -3, -4, -4];
-            }
-            values.forEach((val, i) => {
-                const slider = document.getElementById(`eqSlider_${i}`);
-                if (slider) {
-                    slider.value = val;
-                    updateFilterGain(i, val);
-                }
-            });
-        };
-
-        window.resetEQ = function() {
-            for (let i = 0; i < 32; i++) {
-                const slider = document.getElementById(`eqSlider_${i}`);
-                if (slider) {
-                    slider.value = 0;
-                    updateFilterGain(i, 0);
-                }
-            }
-        };
 
         freezeBtn.addEventListener('click', () => {
             isFrozen = !isFrozen;
@@ -629,13 +456,17 @@
 
         speakerToggle.addEventListener('click', () => {
             speakerActive = !speakerActive;
-            if (gainNode) gainNode.gain.value = speakerActive ? 1.0 : 0.0;
-            if (speakerActive) {
-                speakerToggle.className = 'p-2 rounded-xl bg-cyan-600/30 border border-cyan-500 text-cyan-300';
-                speakerIcon.className = 'w-4 h-4 text-cyan-300';
-            } else {
-                speakerToggle.className = 'p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300';
-                speakerIcon.className = 'w-4 h-4 text-rose-400';
+            if (analyser && audioCtx) {
+                try { analyser.disconnect(); } catch(e){}
+                analyser.connect(micGainNode); // reset
+                if (speakerActive) {
+                    analyser.connect(audioCtx.destination);
+                    speakerToggle.className = 'p-2 rounded-xl bg-cyan-600/30 border border-cyan-500 text-cyan-300';
+                    speakerIcon.className = 'w-4 h-4 text-cyan-300';
+                } else {
+                    speakerToggle.className = 'p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300';
+                    speakerIcon.className = 'w-4 h-4 text-rose-400';
+                }
             }
         });
 
@@ -751,16 +582,16 @@
 
                 if (mode === 'filledLine') {
                     const fillGrad = canvasCtx.createLinearGradient(0, 0, 0, height);
-                    fillGrad.addColorStop(0, 'rgba(59, 130, 246, 0.55)');
+                    fillGrad.addColorStop(0, 'rgba(245, 158, 11, 0.45)');
                     fillGrad.addColorStop(1, 'rgba(30, 27, 75, 0.15)');
                     drawSmoothCurve(canvasCtx, points, true, fillGrad);
 
-                    canvasCtx.strokeStyle = '#3b82f6';
+                    canvasCtx.strokeStyle = '#f59e0b';
                     canvasCtx.lineWidth = 2.5;
                     drawSmoothCurve(canvasCtx, points, false);
                     canvasCtx.stroke();
                 } else {
-                    canvasCtx.strokeStyle = '#06b6d4';
+                    canvasCtx.strokeStyle = '#f59e0b';
                     canvasCtx.lineWidth = 2.5;
                     drawSmoothCurve(canvasCtx, points, false);
                     canvasCtx.stroke();
@@ -779,14 +610,14 @@
                     }
 
                     const gradient = canvasCtx.createLinearGradient(0, height - barHeight, 0, height);
-                    gradient.addColorStop(0, '#06b6d4');
-                    gradient.addColorStop(0.5, '#3b82f6');
-                    gradient.addColorStop(1, '#6366f1');
+                    gradient.addColorStop(0, '#f59e0b');
+                    gradient.addColorStop(0.5, '#d97706');
+                    gradient.addColorStop(1, '#b45309');
 
                     canvasCtx.fillStyle = gradient;
                     canvasCtx.fillRect(i * barWidth + 1, height - barHeight, barWidth - 2, barHeight);
 
-                    canvasCtx.fillStyle = '#22d3ee';
+                    canvasCtx.fillStyle = '#fde68a';
                     canvasCtx.fillRect(i * barWidth + 1, height - peaks[i] - 2, barWidth - 2, 2);
                 }
             }
