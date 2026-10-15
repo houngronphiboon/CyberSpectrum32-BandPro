@@ -35,7 +35,7 @@
             direction: rtl;
             width: 24px;
             height: 160px;
-            accent-color: #f59e0b;
+            accent-color: #06b6d4;
             cursor: pointer;
             touch-action: none;
         }
@@ -152,20 +152,25 @@
         </div>
 
         <!-- 32-Band Microphone Calibration Equalizer Section -->
-        <div class="glass-panel rounded-2xl p-3 sm:p-5 border border-amber-500/30">
+        <div class="glass-panel rounded-2xl p-3 sm:p-5 border border-cyan-500/30">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3 pb-2 border-b border-slate-800/80">
                 <div>
-                    <h2 class="font-tech text-xs sm:text-sm text-amber-300 font-bold tracking-wide flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <h2 class="font-tech text-xs sm:text-sm text-cyan-300 font-bold tracking-wide flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                         32-BAND MICROPHONE CALIBRATION EQUALIZER
                     </h2>
-                    <p class="text-[10px] text-slate-400">ปรับค่าชดเชยแต่ละย่านความถี่ของไมค์โดยตรง</p>
+                    <p class="text-[10px] text-slate-400">ปรับค่าชดเชยแต่ละย่านความถี่ของไมโครโฟน</p>
                 </div>
 
                 <!-- Presets & Reset -->
                 <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-1 rounded-xl border border-slate-800">
+                        <button onclick="setPreset('flat')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-200">Flat</button>
+                        <button onclick="setPreset('bass')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300">Bass+</button>
+                        <button onclick="setPreset('vocal')" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300">Vocal</button>
+                    </div>
                     <button onclick="resetCalibration()" class="text-[11px] font-tech px-2.5 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                        Reset Calibration
+                        Reset
                     </button>
                 </div>
             </div>
@@ -174,8 +179,8 @@
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2 mb-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <input type="text" id="presetNameInput" placeholder="ชื่อพรีเซ็ตไมค์ของคุณ..." class="bg-slate-950 text-xs font-tech text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1 focus:outline-none flex-1 sm:w-56">
-                    <button onclick="saveUserPreset()" class="bg-gradient-to-r from-amber-500 to-orange-600 text-xs font-tech text-white rounded-lg px-2.5 py-1 shadow-md">
-                        บันทึกพรีเซ็ต
+                    <button onclick="saveUserPreset()" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-xs font-tech text-white rounded-lg px-2.5 py-1 shadow-md">
+                        บันทึก
                     </button>
                 </div>
                 <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto" id="userPresetsContainer"></div>
@@ -251,7 +256,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'flex flex-col items-center gap-1.5 flex-1';
                 wrapper.innerHTML = `
-                    <span id="gainVal_${index}" class="text-[9px] font-tech text-amber-400">${currentVal > 0 ? '+' : ''}${currentVal} dB</span>
+                    <span id="gainVal_${index}" class="text-[9px] font-tech text-cyan-400">${currentVal > 0 ? '+' : ''}${currentVal} dB</span>
                     <div class="h-44 flex items-center justify-center py-1">
                         <input type="range" min="-15" max="15" step="0.5" value="${currentVal}" 
                             class="eq-slider" id="eqSlider_${index}" 
@@ -274,6 +279,22 @@
             micCalibration[index] = valNum;
             document.getElementById(`gainVal_${index}`).textContent = (valNum > 0 ? '+' : '') + valNum + ' dB';
             localStorage.setItem('cyber_mic_calib_v2', JSON.stringify(micCalibration));
+        };
+
+        window.setPreset = function(type) {
+            let values = new Array(32).fill(0);
+            if (type === 'bass') {
+                values = [6, 6, 5, 4, 3, 2, 1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            } else if (type === 'vocal') {
+                values = [-2, -2, -1, 0, 0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0, 1, 2, 3, 3, 2, 1, 0, -1, -2, -2, -3, -3, -4, -4];
+            }
+            values.forEach((val, i) => {
+                const slider = document.getElementById(`eqSlider_${i}`);
+                if (slider) {
+                    slider.value = val;
+                    updateCalibValue(i, val);
+                }
+            });
         };
 
         window.resetCalibration = function() {
@@ -330,7 +351,7 @@
 
             keys.forEach(name => {
                 const btnWrapper = document.createElement('div');
-                btnWrapper.className = 'flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-tech text-amber-300 cursor-pointer';
+                btnWrapper.className = 'flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-tech text-cyan-300 cursor-pointer';
                 btnWrapper.innerHTML = `
                     <span onclick="loadUserPreset('${name}')">${name}</span>
                     <span onclick="deleteUserPreset('${name}', event)" class="text-rose-400 font-bold px-0.5">&times;</span>
@@ -359,7 +380,6 @@
                     analyser.fftSize = 4096;
                     analyser.smoothingTimeConstant = parseFloat(speedSlider.value);
 
-                    // ต่อตรงจาก Mic ไป Analyzer โดยไม่ต้องผ่านตัวกรอง Biquad ซ้ำซ้อน
                     sourceNode.connect(micGainNode);
                     micGainNode.connect(analyser);
 
@@ -458,7 +478,7 @@
             speakerActive = !speakerActive;
             if (analyser && audioCtx) {
                 try { analyser.disconnect(); } catch(e){}
-                analyser.connect(micGainNode); // reset
+                analyser.connect(micGainNode);
                 if (speakerActive) {
                     analyser.connect(audioCtx.destination);
                     speakerToggle.className = 'p-2 rounded-xl bg-cyan-600/30 border border-cyan-500 text-cyan-300';
@@ -582,16 +602,16 @@
 
                 if (mode === 'filledLine') {
                     const fillGrad = canvasCtx.createLinearGradient(0, 0, 0, height);
-                    fillGrad.addColorStop(0, 'rgba(245, 158, 11, 0.45)');
+                    fillGrad.addColorStop(0, 'rgba(59, 130, 246, 0.55)');
                     fillGrad.addColorStop(1, 'rgba(30, 27, 75, 0.15)');
                     drawSmoothCurve(canvasCtx, points, true, fillGrad);
 
-                    canvasCtx.strokeStyle = '#f59e0b';
+                    canvasCtx.strokeStyle = '#3b82f6';
                     canvasCtx.lineWidth = 2.5;
                     drawSmoothCurve(canvasCtx, points, false);
                     canvasCtx.stroke();
                 } else {
-                    canvasCtx.strokeStyle = '#f59e0b';
+                    canvasCtx.strokeStyle = '#06b6d4';
                     canvasCtx.lineWidth = 2.5;
                     drawSmoothCurve(canvasCtx, points, false);
                     canvasCtx.stroke();
@@ -610,14 +630,14 @@
                     }
 
                     const gradient = canvasCtx.createLinearGradient(0, height - barHeight, 0, height);
-                    gradient.addColorStop(0, '#f59e0b');
-                    gradient.addColorStop(0.5, '#d97706');
-                    gradient.addColorStop(1, '#b45309');
+                    gradient.addColorStop(0, '#06b6d4');
+                    gradient.addColorStop(0.5, '#3b82f6');
+                    gradient.addColorStop(1, '#6366f1');
 
                     canvasCtx.fillStyle = gradient;
                     canvasCtx.fillRect(i * barWidth + 1, height - barHeight, barWidth - 2, barHeight);
 
-                    canvasCtx.fillStyle = '#fde68a';
+                    canvasCtx.fillStyle = '#22d3ee';
                     canvasCtx.fillRect(i * barWidth + 1, height - peaks[i] - 2, barWidth - 2, 2);
                 }
             }
